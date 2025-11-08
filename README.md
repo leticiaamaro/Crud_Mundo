@@ -10,6 +10,7 @@ Este projeto é um sistema de CRUD para países e cidades do mundo, focado no ge
 - **Front End**: HTML, CSS, JavaScript
 - **Back End**: PHP
 - **Banco de Dados**: MySQL
+- **APIs**: REST Countries  e OpenWeatherMap 
 
 ## Funcionalidades
 - Cadastro, edição, exclusão e visualização de países

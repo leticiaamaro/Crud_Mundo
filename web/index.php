@@ -22,7 +22,7 @@
             <a href="#contato" class="nav-link">Contato</a>
         </nav>
             <div class="grupo-btns">
-                <a href="controle.html"><button class="estilo-btn">Gerenciamento</button></a>
+                <a href="controle.php"><button class="estilo-btn">Gerenciamento</button></a>
             </div>
     </header>
 
@@ -180,7 +180,7 @@
                         <div class="card-body">
                             <h3 class="card-title">Card title</h3>
                             <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                            <a href="#" class="card-btn">Go somewhere</a>
+                            <a href="#" class="card-btn">Saiba mais</a>
                         </div>
                     </article>
                     <article class="card">

@@ -7,6 +7,7 @@ create table paises (
     id_pais int primary key auto_increment,
     nome varchar(100) not null,
     continente varchar(50) not null,
+    codigo_pais int not null,
     populacao int not null,
     idioma varchar(50) not null
 );

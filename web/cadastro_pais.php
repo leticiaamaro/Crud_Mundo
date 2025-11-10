@@ -1,3 +1,37 @@
+<?php
+require_once 'conect.php';
+
+// Cadastro de País
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nome = $_POST['nome'];
+    $codigo = $_POST['codigo'];
+    $continente = $_POST['continente'];
+    $populacao = $_POST['populacao'];
+    $idioma = $_POST['idioma'];
+
+    // Corrigindo o prepare + bind_param para mysqli
+    $stmt = $conn->prepare("insert into paises (nome, continente, codigo_pais, populacao, idioma) values (?, ?, ?, ?, ?)");
+
+    // Verifica se o prepare foi bem-sucedido
+    if ($stmt === false) {
+        die("Erro ao preparar a query: " . $conn->error);
+    }
+
+    // 'ssiis' significa: string, string, integer, integer, string
+    $stmt->bind_param("ssiis", $nome, $continente, $codigo, $populacao, $idioma);
+
+    if ($stmt->execute()) {
+        echo "<script>alert('País cadastrado com sucesso!');</script>";
+    } else {
+        echo "<script>alert('Erro ao cadastrar país: " . $stmt->error . "');</script>";
+    }
+
+    $stmt->close();
+}
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -5,173 +39,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Espaço Mundo - Cadastro País</title>
+    <link rel="stylesheet" href="./css/cad_pais.css">
     <!-- FontAwesome -->
     <script src="https://kit.fontawesome.com/fbd385f3f7.js" crossorigin="anonymous"></script>
     <style>
-        html,
-        body {
-            height: 100%;
-            margin: 0
-        }
-
-        body {
-            font-family: 'Segoe UI', 'Arial', sans-serif;
-            background: #101624;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-        }
-
-        .signup-card {
-            width: 360px;
-            background: #f7f9fa;
-            border-radius: 12px;
-            padding: 36px 28px;
-            box-shadow: 0 12px 40px rgba(2, 6, 23, 0.6);
-            color: #101624;
-        }
-
-        .signup-title {
-            font-size: 1.8rem;
-            text-align: center;
-            margin: 0 0 14px 0;
-            color: #101624;
-        }
-
-        .social-row {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            margin: 10px 0 18px 0;
-        }
-
-        .social-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            background: #fff;
-            color: rgba(16, 22, 36, 0.6);
-            text-decoration: none;
-            box-shadow: 0 2px 6px rgba(2, 6, 23, 0.06)
-        }
-
-        .signup-sub {
-            text-align: center;
-            color: rgba(16, 22, 36, 0.6);
-            font-size: 0.95rem;
-            margin-bottom: 18px
-        }
-
-        .field {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: #eef4f6;
-            padding: 12px 14px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7)
-        }
-
-        .field i {
-            color: rgba(16, 22, 36, 0.6);
-            font-size: 1.05rem
-        }
-
-        .field input {
-            border: 0;
-            background: transparent;
-            outline: none;
-            font-size: 1rem;
-            width: 100%;
-            color: #101624
-        }
-
-        .signup-btn {
-            display: block;
-            margin: 18px auto 0 auto;
-            background: #b8e0ff;
-            color: #101624;
-            border: none;
-            padding: 12px 54px;
-            border-radius: 28px;
-            font-weight: 700;
-            cursor: pointer;
-            font-family: 'Arial', sans-serif;
-            box-shadow: 0 8px 20px rgba(184, 224, 255, 0.15)
-        }
-
-        .signup-btn:hover {
-            background: #fff
-        }
-
-        @media (max-width:420px) {
-            .signup-card {
-                width: 92%;
-                padding: 28px
-            }
-        }
-
-        select:invalid {
-            /*quando o select está no estado inicial*/
-            color: rgba(16, 22, 36, 0.6);
-        }
-
-        select option {
-            /*todas as opções normais com cor padrão*/
-            color: #101624;
-        }
-
-        select option:disabled {
-            /*mantém :invalid para a opção desabilitadas*/
-            color: rgba(16, 22, 36, 0.6);
-        }
-
-        .voltar-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            color: #fff;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            transition: background 0.3s;
-        }
-
-        .voltar-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        @media (max-width:420px) {
-            .voltar-btn {
-                top: 10px;
-                left: 10px;
-            }
-        }
+        
     </style>
 </head>
 
 <body>
 
-    <a href="controle.html" class="voltar-btn">
+    <a href="controle.php" class="voltar-btn">
         <i class="fas fa-arrow-left"></i>
         Voltar
     </a>
 
-    <div class="signup-card" role="region" aria-label="Criar conta">
-        <h2 class="signup-title">Cadastro - Países</h2>
+    <div class="conteudo-card" role="region" aria-label="Criar conta">
+        <h2 class="card-titulo">Cadastro - País</h2>
 
-        <form action="#" method="post" autocomplete="off">
-            <label class="field">
+        <form action="cadastro_pais.php" method="POST" autocomplete="off">
+            <label class="form-label">
                 <i class="fas fa-flag"></i>
                 <input type="text" name="nome" placeholder="Nome do País"
                     pattern="[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]{2,}"
@@ -182,13 +69,12 @@
                  *i.test(event.key):expressão que verifica se as teclas pressionada seguem o padrão
             -->
 
-            <label class="field">
+            <label class="form-label">
                 <i class="fas fa-hashtag"></i>
-                <input type="number" name="codigo" placeholder="Código do País" inputmode="numeric" pattern="\\d+"
-                    title="Apenas números" required onkeypress="return /[0-9]/.test(event.key)">
+                <input type="number" name="codigo" placeholder="Código do País" inputmode="numeric" pattern="\\d+" required onkeypress="return /[0-9]/.test(event.key)">
             </label>
 
-            <label class="field">
+            <label class="form-label">
                 <i class="fas fa-globe-americas"></i>
                 <select name="continente" required
                     style="border:0;background:transparent;outline:none;font-size:1rem;width:100%">
@@ -202,24 +88,23 @@
                 </select>
             </label>
 
-            <label class="field">
+            <label class="form-label">
                 <i class="fas fa-users"></i>
                 <input type="number" name="populacao" placeholder="População" min="0" step="1" inputmode="numeric"
                     required onkeypress="return /[0-9]/.test(event.key)">
             </label>
 
-            <label class="field">
+            <label class="form-label">
                 <i class="fas fa-language"></i>
                 <input type="text" name="idioma" placeholder="Idioma Principal"
                     pattern="[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]{2,}"
                     onkeypress="return /[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]/i.test(event.key)" required>
             </label>
 
-            <div class="signup-sub">Não sabe o código? <a
+            <div class="link-codigos">Não sabe o código? <a
                     href="https://www.dadosmundiais.com/codigos-de-pais.php">Consulte aqui.</a>
             </div>
-
-            <button class="signup-btn" type="submit">Cadastrar País</button>
+            <button class="cadastrar-btn" type="submit">Cadastrar País</button>
         </form>
 
     </div>

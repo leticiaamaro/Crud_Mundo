@@ -1,3 +1,33 @@
+<?php
+require_once 'conect.php'; // ajuste o caminho conforme sua estrutura
+
+// Inserção no banco
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nome = $_POST['nome'];
+    $id_pais = $_POST['pais'];
+    $populacao = $_POST['populacao'];
+
+    $sql = "insert into cidades (nome, populacao, id_pais) values (?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sii", $nome, $populacao, $id_pais);
+
+    if ($stmt->execute()) {
+        echo "<script>alert('Cidade cadastrada com sucesso!'); window.location.href='cadastro_cidade.php';</script>";
+    } else {
+        echo "<script>alert('Erro ao cadastrar cidade: " . $conn->error . "');</script>";
+    }
+}
+
+// Buscar países cadastrados para o select
+$paises = [];
+$result = $conn->query("SELECT id_pais, nome FROM paises ORDER BY nome ASC");
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $paises[] = $row;
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -5,192 +35,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Espaço Mundo - Cadastro Cidade</title>
+    <link rel="stylesheet" href="./css/cad_cidade.css">
     <!-- FontAwesome -->
     <script src="https://kit.fontawesome.com/fbd385f3f7.js" crossorigin="anonymous"></script>
-    <style>
-        html,
-        body {
-            height: 100%;
-            margin: 0
-        }
-
-        body {
-            font-family: 'Segoe UI', 'Arial', sans-serif;
-            background: #101624;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-        }
-
-        .signup-card {
-            width: 360px;
-            background: #f7f9fa;
-            border-radius: 12px;
-            padding: 36px 28px;
-            box-shadow: 0 12px 40px rgba(2, 6, 23, 0.6);
-            color: #101624;
-        }
-
-        .signup-title {
-            font-size: 1.8rem;
-            text-align: center;
-            margin: 0 0 14px 0;
-            color: #101624;
-        }
-
-        .social-row {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            margin: 10px 0 18px 0;
-        }
-
-        .social-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            background: #fff;
-            color: rgba(16, 22, 36, 0.6);
-            text-decoration: none;
-            box-shadow: 0 2px 6px rgba(2, 6, 23, 0.06)
-        }
-
-        .field {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: #eef4f6;
-            padding: 12px 14px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7)
-        }
-
-        .field i {
-            color: rgba(16, 22, 36, 0.6);
-            font-size: 1.05rem
-        }
-
-        .field input {
-            border: 0;
-            background: transparent;
-            outline: none;
-            font-size: 1rem;
-            width: 100%;
-            color: #101624
-        }
-
-        .signup-btn {
-            display: block;
-            margin: 18px auto 0 auto;
-            background: #b8e0ff;
-            color: #101624;
-            border: none;
-            padding: 12px 54px;
-            border-radius: 28px;
-            font-weight: 700;
-            cursor: pointer;
-            font-family: 'Arial', sans-serif;
-            box-shadow: 0 8px 20px rgba(184, 224, 255, 0.15)
-        }
-
-        .signup-btn:hover {
-            background: #fff
-        }
-
-        @media (max-width:420px) {
-            .signup-card {
-                width: 92%;
-                padding: 28px
-            }
-        }
-
-        select:invalid {
-            /*quando o select está no estado inicial*/
-            color: rgba(16, 22, 36, 0.6);
-        }
-
-        select option {
-            /*todas as opções normais com cor padrão*/
-            color: #101624;
-        }
-
-        select option:disabled {
-            /*mantém :invalid para a opção desabilitadas*/
-            color: rgba(16, 22, 36, 0.6);
-        }
-
-        .voltar-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            color: #fff;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            transition: background 0.3s;
-        }
-
-        .voltar-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        @media (max-width:420px) {
-            .voltar-btn {
-                top: 10px;
-                left: 10px;
-            }
-        }
-    </style>
 </head>
 
 <body>
 
-    <a href="controle.html" class="voltar-btn">
+    <a href="controle.php" class="voltar-btn">
         <i class="fas fa-arrow-left"></i>
         Voltar
     </a>
 
-    <div class="signup-card" role="region" aria-label="Criar conta">
-        <h2 class="signup-title">Cadastro - Cidade</h2>
+    <div class="conteudo-card" role="region" aria-label="Criar conta">
+        <h2 class="card-titulo">Cadastro - Cidade</h2>
 
         <form action="#" method="post" autocomplete="off">
 
-             <label class="field">
+            <label class="form-label">
                 <i class="fa-solid fa-building"></i>
                 <input type="text" name="nome" placeholder="Nome da Cidade"
                     pattern="[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]{2,}"
                     onkeypress="return /[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]/i.test(event.key)" required>
             </label>
-
-            <label class="field">
-                <i class="fas fa-flag"></i>
-                <input type="text" name="pais" placeholder="Nome do País"
-                    pattern="[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]{2,}"
-                    onkeypress="return /[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]/i.test(event.key)" required>
-            </label>
-            <!-- *pattern: estabelece o padrão/regra
+             <!-- *pattern: estabelece o padrão/regra
                  *onkeypress: previne a digiração de caracteres fora da regra
                  *i.test(event.key):expressão que verifica se as teclas pressionada seguem o padrão
             -->
 
+            <label class="form-label">
+                <i class="fas fa-flag"></i>
+                <select name="pais" required style="border:0;background:transparent;outline:none;font-size:1rem;width:100%">
+                    <option value="" disabled selected>Selecione o País</option>
+                    <?php foreach ($paises as $pais): ?>
+                        <option value="<?= $pais['id_pais'] ?>"><?= htmlspecialchars($pais['nome']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
 
-            <label class="field">
+            <label class="form-label">
                 <i class="fas fa-users"></i>
                 <input type="number" name="populacao" placeholder="População" min="0" step="1" inputmode="numeric"
                     required onkeypress="return /[0-9]/.test(event.key)">
             </label>
 
-            <button class="signup-btn" type="submit">Cadastrar Cidade</button>
+            <button class="cadastrar-btn" type="submit">Cadastrar Cidade</button>
         </form>
 
     </div>

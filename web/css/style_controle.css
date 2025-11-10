@@ -1,0 +1,223 @@
+html,body {
+    padding: 40px 0;
+    margin: 0;
+    background: #101624;
+    font-family: "Segoe UI", "Arial", sans-serif;
+    color: #101624;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+}
+/* -=-=-=-=-= TABELAS =-=-=--- */
+.conteudo-tabelas {
+    background: #f7f9fa;
+    border-radius: 12px;
+    padding: 36px 28px;
+    width: 90%;
+    max-width: 900px;
+    box-shadow: 0 12px 40px rgba(2, 6, 23, 0.6);
+}
+
+.header-tabelas {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid rgba(16, 22, 36, 0.6);
+    padding-bottom: 10px;
+    margin-bottom: 24px;
+}
+
+.header-tabelas h1 {
+    font-size: 1.8rem;
+    color: #101624;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.header-tabelas a {
+    text-decoration: none;
+}
+
+.novo-cad-btn {
+    border-radius: 28px;
+    background: #b8e0ff;
+    color: #101624;
+    border: none;
+    padding: 10px 18px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.3s;
+}
+
+.novo-cad-btn:hover {
+    background: #383e4a;
+    color: #b8e0ff;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background: #b8e0ff;
+    color: #101624;
+}
+
+th,td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+tbody tr:hover {
+    background: #f4f7f8;
+}
+
+td i {
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+/* Botões */
+.edit {
+    color: #356df0;
+    margin-right: 10px;
+}
+
+.delete {
+    color: #d64545;
+}
+
+.voltar-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    color: #fff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: background 0.3s;
+}
+
+.voltar-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/*=-=-=-=-= MODAIS =-==--=-=-= */
+.modal-conteudo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.close-btn {
+    position: absolute;
+    top: 18px;
+    right: 24px;
+    color: #101624;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.confirm-text {
+    text-align: center;
+    font-size: 1.1rem;
+    margin-top: 10px;
+}
+
+.card-modal {
+    width: 360px;
+    background: #f7f9fa;
+    border-radius: 12px;
+    padding: 36px 28px;
+    box-shadow: 0 12px 40px rgba(2, 6, 23, 0.6);
+    color: #101624;
+    position: relative;
+}
+
+.modal-titulo {
+    font-size: 1.8rem;
+    text-align: center;
+    margin: 0 0 14px 0;
+    color: #101624;
+}
+
+.label-form {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #eef4f6;
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.label-form i {
+    color: rgba(16, 22, 36, 0.6);
+    font-size: 1.05rem;
+}
+
+.label-form input,.label-form select {
+    border: 0;
+    background: transparent;
+    outline: none;
+    font-size: 1rem;
+    width: 100%;
+    color: #101624;
+}
+
+select:invalid {
+    color: rgba(16, 22, 36, 0.6);
+}
+
+select option {
+    color: #101624;
+}
+
+.signup-sub {
+    text-align: center;
+    color: rgba(16, 22, 36, 0.6);
+    font-size: 0.95rem;
+    margin-bottom: 18px
+}
+
+.enviar-btn {
+    display: block;
+    margin: 18px auto 0 auto;
+    background: #b8e0ff;
+    color: #101624;
+    border: none;
+    padding: 12px 54px;
+    border-radius: 28px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: "Arial", sans-serif;
+    box-shadow: 0 8px 20px rgba(184, 224, 255, 0.15);
+}
+
+.enviar-btn:hover {
+    background: #fff;
+}

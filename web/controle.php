@@ -1,181 +1,43 @@
-<!DOCTYPE html> 
+<?php
+require_once 'conect.php'; // ajuste conforme sua estrutura de pastas
+
+// ====== BUSCAR PAÍSES ======
+$sqlPaises = "select id_pais, nome, codigo_pais, continente, populacao, idioma from paises ";
+$paises = $conn->query($sqlPaises);
+
+// ====== BUSCAR CIDADES (com nome do país) ======
+$sqlCidades = "select cidades.id_cidade, cidades.nome as cidade, cidades.populacao, paises.nome as pais 
+               from cidades  
+               inner join paises on cidades.id_pais = paises.id_pais";
+$cidades = $conn->query($sqlCidades);
+?>
+
+<!DOCTYPE html>
 <html lang="pt-br">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Espaço Mundo - Controle</title>
+    <link rel="stylesheet" href="./css/style_controle.css">
+    <!--FontAwesome-->
     <script src="https://kit.fontawesome.com/fbd385f3f7.js" crossorigin="anonymous"></script>
-
     <style>
-        html,
-        body {
-            height: 100%;
-            margin: 0;
-            padding: 40px 0 40px;
-        }
 
-        body {
-            font-family: 'Segoe UI', 'Arial', sans-serif;
-            background: #101624;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            color: #101624;
-            gap: 40px;
-        }
-
-        .container {
-            background: #f7f9fa;
-            border-radius: 12px;
-            padding: 36px 28px;
-            width: 90%;
-            max-width: 900px;
-            box-shadow: 0 12px 40px rgba(2, 6, 23, 0.6);
-        }
-
-        /* Espaço extra no final da página */
-        #tabela-cidades {
-            margin-bottom: 80px;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 3px solid rgba(16, 22, 36, 0.6);
-            padding-bottom: 10px;
-            margin-bottom: 24px;
-        }
-
-        .header h1 {
-            font-size: 1.8rem;
-            color: #101624;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 0;
-        }
-
-        .header a {
-            text-decoration: none;
-        }
-
-        .new-btn {
-            border-radius: 28px;
-            background: #b8e0ff;
-            color: #101624;
-            border: none;
-            padding: 10px 18px;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background 0.3s;
-        }
-
-        .new-btn:hover {
-            background: #383e4a;
-            color: #b8e0ff;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        thead {
-            background: #b8e0ff;
-            color: #101624;
-            text-align: left;
-        }
-
-        th,
-        td {
-            padding: 12px 16px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
-        }
-
-        tbody tr:hover {
-            background: #f4f7f8;
-        }
-
-        td i {
-            cursor: pointer;
-            font-size: 1rem;
-        }
-
-        .edit {
-            color: #356df0;
-            margin-right: 10px;
-        }
-
-        .delete {
-            color: #d64545;
-        }
-
-        .edit:hover {
-            color: #5a8fff;
-        }
-
-        .delete:hover {
-            color: #ff6b6b;
-        }
-
-        .voltar-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            color: #fff;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            transition: background 0.3s;
-        }
-
-        .voltar-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        @media (max-width: 600px) {
-            .container {
-                padding: 28px;
-            }
-
-            table {
-                font-size: 0.9rem;
-            }
-
-            th,
-            td {
-                padding: 10px;
-            }
-        }
     </style>
 </head>
 
-<body>
 
-    <a href="index.html" class="voltar-btn">
-        <i class="fas fa-arrow-left"></i>
-        Voltar
+<body>
+    <a href="index.php" class="voltar-btn">
+        <i class="fas fa-arrow-left"></i> Voltar
     </a>
 
-    <!-- PRIMEIRA TABELA -->
-    <div class="container" id="tabela-paises">
-        <div class="header">
+    <!-- TABELA DE PAÍSES -->
+    <div class="conteudo-tabelas" id="tabela-paises">
+        <div class="header-tabelas">
             <h1><i class="fa-solid fa-earth-americas"></i> Gerenciamento - Países</h1>
-            <a href="cadastro_pais.html"><button class="new-btn"><i class="fas fa-plus"></i> Novo Cadastro</button></a>
+            <a href="cadastro_pais.php"><button class="novo-cad-btn"><i class="fas fa-plus"></i> Novo Cadastro</button></a>
         </div>
 
         <table>
@@ -191,51 +53,35 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>Brasil</td>
-                    <td>55</td>
-                    <td>América do Sul</td>
-                    <td>214.000.000</td>
-                    <td>Português</td>
-                    <td><i class="fas fa-edit edit" title="Editar"></i><i class="fas fa-trash delete" title="Excluir"></i></td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>Japão</td>
-                    <td>81</td>
-                    <td>Ásia</td>
-                    <td>125.000.000</td>
-                    <td>Japonês</td>
-                    <td><i class="fas fa-edit edit" title="Editar"></i><i class="fas fa-trash delete" title="Excluir"></i></td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td>Alemanha</td>
-                    <td>49</td>
-                    <td>Europa</td>
-                    <td>83.000.000</td>
-                    <td>Alemão</td>
-                    <td><i class="fas fa-edit edit" title="Editar"></i><i class="fas fa-trash delete" title="Excluir"></i></td>
-                </tr>
-                <tr>
-                    <td>4</td>
-                    <td>África do Sul</td>
-                    <td>27</td>
-                    <td>África</td>
-                    <td>60.000.000</td>
-                    <td>Inglês / Zulu</td>
-                    <td><i class="fas fa-edit edit" title="Editar"></i><i class="fas fa-trash delete" title="Excluir"></i></td>
-                </tr>
+                <?php if ($paises->num_rows > 0): ?>
+                    <?php while ($pais = $paises->fetch_assoc()): ?>
+                        <tr>
+                            <td><?= $pais['id_pais'] ?></td>
+                            <td><?= htmlspecialchars($pais['nome']) ?></td>
+                            <td><?= htmlspecialchars($pais['codigo_pais']) ?></td>
+                            <td><?= htmlspecialchars($pais['continente']) ?></td>
+                            <td><?= number_format($pais['populacao'], 0, ',', '.') ?></td>
+                            <td><?= htmlspecialchars($pais['idioma']) ?></td>
+                            <td>
+                                <i class="fas fa-edit edit" data-tipo="pais"></i>
+                                <i class="fas fa-trash delete" data-tipo="pais"></i>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="7" style="text-align:center; color:#666;">Nenhum país cadastrado.</td>
+                    </tr>
+                <?php endif; ?>
             </tbody>
         </table>
     </div>
 
-    <!-- SEGUNDA TABELA -->
-    <div class="container" id="tabela-cidades">
-        <div class="header">
+    <!-- TABELA DE CIDADES -->
+    <div class="conteudo-tabelas" id="tabela-cidades">
+        <div class="header-tabelas">
             <h1><i class="fas fa-city"></i> Gerenciamento - Cidades</h1>
-            <a href="cadastro_cidade.html"><button class="new-btn"><i class="fas fa-plus"></i> Novo Cadastro</button></a>
+            <a href="cadastro_cidade.php"><button class="novo-cad-btn"><i class="fas fa-plus"></i> Novo Cadastro</button></a>
         </div>
 
         <table>
@@ -249,38 +95,191 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>São Paulo</td>
-                    <td>Brasil</td>
-                    <td>12.300.000</td>
-                    <td><i class="fas fa-edit edit" title="Editar"></i><i class="fas fa-trash delete" title="Excluir"></i></td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>Tóquio</td>
-                    <td>Japão</td>
-                    <td>13.900.000</td>
-                    <td><i class="fas fa-edit edit" title="Editar"></i><i class="fas fa-trash delete" title="Excluir"></i></td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td>Berlim</td>
-                    <td>Alemanha</td>
-                    <td>3.700.000</td>
-                    <td><i class="fas fa-edit edit" title="Editar"></i><i class="fas fa-trash delete" title="Excluir"></i></td>
-                </tr>
-                <tr>
-                    <td>4</td>
-                    <td>Cidade do Cabo</td>
-                    <td>África do Sul</td>
-                    <td>4.600.000</td>
-                    <td><i class="fas fa-edit edit" title="Editar"></i><i class="fas fa-trash delete" title="Excluir"></i></td>
-                </tr>
+                <?php if ($cidades->num_rows > 0): ?>
+                    <?php while ($cidade = $cidades->fetch_assoc()): ?>
+                        <tr>
+                            <td><?= $cidade['id_cidade'] ?></td>
+                            <td><?= htmlspecialchars($cidade['cidade']) ?></td>
+                            <td><?= htmlspecialchars($cidade['pais']) ?></td>
+                            <td><?= number_format($cidade['populacao'], 0, ',', '.') ?></td>
+                            <td>
+                                <i class="fas fa-edit edit" data-tipo="cidade"></i>
+                                <i class="fas fa-trash delete" data-tipo="cidade"></i>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="5" style="text-align:center; color:#666;">Nenhuma cidade cadastrada.</td>
+                    </tr>
+                <?php endif; ?>
             </tbody>
         </table>
     </div>
 
+    <!-- MODAL DE EDIÇÃO -->
+    <div class="modal-conteudo" id="modal">
+        <div class="card-modal">
+            <i class="fas fa-times close-btn" id="fechar"></i>
+            <h2 class="modal-titulo" id="titulo-modal">Editar País</h2>
+
+            <!-- FORMULÁRIO DE PAÍS -->
+            <form id="form-pais">
+
+                <label class="label-form">
+                <i class="fas fa-flag"></i>
+                <input type="text" name="nome" placeholder="Nome do País"
+                    pattern="[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]{2,}"
+                    onkeypress="return /[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]/i.test(event.key)" required>
+                </label>
+
+
+                <label class="label-form">
+                    <i class="fas fa-hashtag"></i>
+                    <input type="number" name="codigo" placeholder="Código do País" inputmode="numeric" pattern="\\d+" required onkeypress="return /[0-9]/.test(event.key)">
+                </label>
+
+
+                <label class="label-form">
+                    <i class="fas fa-globe-americas"></i>
+                    <select name="continente" required
+                        style="border:0;background:transparent;outline:none;font-size:1rem;width:100%">
+                        <option value="" disabled selected>Selecione o Continente</option>
+                        <option value="africa">África</option>
+                        <option value="america">América</option>
+                        <option value="asia">Ásia</option>
+                        <option value="europa">Europa</option>
+                        <option value="oceania">Oceania</option>
+                        <option value="antartida">Antártida</option>
+                    </select>
+                </label>
+
+                <label class="label-form">
+                    <i class="fas fa-users"></i>
+                    <input type="number" name="populacao" placeholder="População" min="0" step="1" inputmode="numeric"
+                        required onkeypress="return /[0-9]/.test(event.key)">
+                </label>
+
+
+                <label class="label-form">
+                    <i class="fas fa-language"></i>
+                    <input type="text" name="idioma" placeholder="Idioma Principal"
+                        pattern="[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]{2,}"
+                        onkeypress="return /[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]/i.test(event.key)" required>
+                </label>
+
+                <div class="signup-sub">Não sabe o código? <a
+                        href="https://www.dadosmundiais.com/codigos-de-pais.php">Consulte aqui.</a>
+                </div>
+
+                <button class="enviar-btn" type="submit">Salvar Alterações</button>
+            </form>
+
+            <!-- FORMULÁRIO DE CIDADE -->
+            <form id="form-cidade" style="display: none;">
+
+                <label class="label-form">
+                    <i class="fa-solid fa-building"></i>
+                    <input type="text" name="nome" placeholder="Nome da Cidade"
+                        pattern="[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]{2,}"
+                        onkeypress="return /[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]/i.test(event.key)" required>
+                </label>
+
+                <label class="label-form">
+                    <i class="fas fa-flag"></i>
+                    <select name="pais" required style="border:0;background:transparent;outline:none;font-size:1rem;width:100%">
+                        <option value="" disabled selected>Selecione o País</option>
+                        <?php foreach ($paises as $pais): ?>
+                            <option value="<?= $pais['id_pais'] ?>"><?= htmlspecialchars($pais['nome']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </label>
+
+                <label class="label-form">
+                    <i class="fas fa-users"></i>
+                    <input type="number" name="populacao" placeholder="População" min="0" step="1" inputmode="numeric"
+                        required onkeypress="return /[0-9]/.test(event.key)">
+                </label>
+
+                <button class="enviar-btn" type="submit">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE EXCLUSÃO -->
+    <div class="modal-conteudo" id="modal-excluir">
+        <div class="card-modal">
+            <i class="fas fa-times close-btn" id="fechar-excluir"></i>
+            <h2 class="modal-titulo" id="titulo-excluir">Excluir Registro</h2>
+            <p class="confirm-text" id="texto-excluir">Tem certeza de que deseja excluir este registro?</p>
+            <button class="enviar-btn" id="confirmar-excluir">Excluir</button>
+        </div>
+    </div>
+
+    <script>
+        /* --- EDITAR --- */
+        const modal = document.getElementById("modal");
+        const fechar = document.getElementById("fechar");
+        const titulo = document.getElementById("titulo-modal");
+        const formPais = document.getElementById("form-pais");
+        const formCidade = document.getElementById("form-cidade");
+        const botoesEditar = document.querySelectorAll(".edit");
+
+        botoesEditar.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                modal.style.display = "flex";
+                const tipo = btn.getAttribute("data-tipo");
+
+                if (tipo === "pais") {
+                    titulo.textContent = "Editar País";
+                    formPais.style.display = "block";
+                    formCidade.style.display = "none";
+                } else {
+                    titulo.textContent = "Editar Cidade";
+                    formPais.style.display = "none";
+                    formCidade.style.display = "block";
+                }
+            });
+        });
+
+        fechar.addEventListener("click", () => (modal.style.display = "none"));
+        window.addEventListener("click", (e) => {
+            if (e.target === modal) modal.style.display = "none";
+        });
+
+        /* --- EXCLUIR --- */
+        const modalExcluir = document.getElementById("modal-excluir");
+        const fecharExcluir = document.getElementById("fechar-excluir");
+        const tituloExcluir = document.getElementById("titulo-excluir");
+        const textoExcluir = document.getElementById("texto-excluir");
+
+        const botoesExcluir = document.querySelectorAll(".delete");
+
+        botoesExcluir.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                modalExcluir.style.display = "flex";
+                const tipo = btn.getAttribute("data-tipo");
+
+                if (tipo === "pais") {
+                    tituloExcluir.textContent = "Excluir País";
+                    textoExcluir.textContent = "Tem certeza de que deseja excluir este país?";
+                } else {
+                    tituloExcluir.textContent = "Excluir Cidade";
+                    textoExcluir.textContent = "Tem certeza de que deseja excluir esta cidade?";
+                }
+            });
+        });
+
+        fecharExcluir.addEventListener("click", () => (modalExcluir.style.display = "none"));
+        window.addEventListener("click", (e) => {
+            if (e.target === modalExcluir) modalExcluir.style.display = "none";
+        });
+
+        document.getElementById("confirmar-excluir").addEventListener("click", () => {
+            alert("Registro excluído com sucesso!");
+            modalExcluir.style.display = "none";
+        });
+    </script>
 </body>
 
 </html>

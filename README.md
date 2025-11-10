@@ -1,4 +1,4 @@
-# CRUD Mundo (Espaço Mundo) 🌍
+# CRUD Mundo (Espaço Mundo) 🌍 - Letícia Amaro
 
 Este projeto é um sistema de CRUD para países e cidades do mundo, focado no gerenciamento de dados geográficos. O objetivo é permitir o cadastro, edição, visualização e exclusão de informações sobre países e cidades.
 

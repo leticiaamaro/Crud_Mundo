@@ -1,12 +1,83 @@
 <?php
-require_once 'conect.php'; // ajuste conforme sua estrutura de pastas
+require_once 'conect.php';
+
+// UPDATE PAISES E CIDADES
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    // ==== ATUALIZAR PAÍS ====
+    if ($_POST["tipo"] === "pais") {
+
+        $id = $_POST["id"];
+        $nome = $_POST["nome"];
+        $codigo = $_POST["codigo"];
+        $continente = $_POST["continente"];
+        $populacao = $_POST["populacao"];
+        $idioma = $_POST["idioma"];
+
+        $sql = "update paises 
+                set nome=?, codigo_pais=?, continente=?, populacao=?, idioma=?
+                where id_pais=?";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("sssisi", $nome, $codigo, $continente, $populacao, $idioma, $id);
+        $stmt->execute();
+
+        echo "ok";
+        exit;
+    }
+
+    // ==== ATUALIZAR CIDADE ====
+    if ($_POST["tipo"] === "cidade") {
+
+        $id = $_POST["id"];
+        $nome = $_POST["nome"];
+        $pais = $_POST["pais"];
+        $populacao = $_POST["populacao"];
+
+        $sql = "update cidades 
+                set nome=?, id_pais=?, populacao=?
+                where id_cidade=?";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("sisi", $nome, $pais, $populacao, $id);
+        $stmt->execute();
+
+        echo "ok";
+        exit;
+    }
+}
+
+// ===== EXCLUIR =====
+if ($_SERVER["REQUEST_METHOD"] === "POST" && $_POST["tipo"] === "excluir") {
+
+    $id = $_POST["id"];
+    $categoria = $_POST["categoria"]; // pais ou cidade
+
+    if ($categoria === "pais") {
+        $sql = "delete from paises where id_pais = ?";
+    } else {
+        $sql = "delete from cidades where id_cidade = ?";
+    }
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+
+    echo "ok";
+    exit;
+}
 
 // ====== BUSCAR PAÍSES ======
-$sqlPaises = "select id_pais, nome, codigo_pais, continente, populacao, idioma from paises ";
+$sqlPaises = "select id_pais, nome, codigo_pais, continente, populacao, idioma from paises";
 $paises = $conn->query($sqlPaises);
 
-// ====== BUSCAR CIDADES (com nome do país) ======
-$sqlCidades = "select cidades.id_cidade, cidades.nome as cidade, cidades.populacao, paises.nome as pais 
+// ====== BUSCAR CIDADES ======
+$sqlCidades = "select 
+                  cidades.id_cidade, 
+                  cidades.nome as cidade, 
+                  cidades.populacao,
+                  cidades.id_pais,
+                  paises.nome as pais 
                from cidades  
                inner join paises on cidades.id_pais = paises.id_pais";
 $cidades = $conn->query($sqlCidades);
@@ -20,15 +91,12 @@ $cidades = $conn->query($sqlCidades);
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Espaço Mundo - Controle</title>
     <link rel="stylesheet" href="./css/style_controle.css">
-    <!--FontAwesome-->
+    <!-- Font Awesome -->
     <script src="https://kit.fontawesome.com/fbd385f3f7.js" crossorigin="anonymous"></script>
-    <style>
-
-    </style>
 </head>
 
-
 <body>
+
     <a href="index.php" class="voltar-btn">
         <i class="fas fa-arrow-left"></i> Voltar
     </a>
@@ -52,6 +120,7 @@ $cidades = $conn->query($sqlCidades);
                     <th>AÇÕES</th>
                 </tr>
             </thead>
+
             <tbody>
                 <?php if ($paises->num_rows > 0): ?>
                     <?php while ($pais = $paises->fetch_assoc()): ?>
@@ -70,7 +139,7 @@ $cidades = $conn->query($sqlCidades);
                     <?php endwhile; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="7" style="text-align:center; color:#666;">Nenhum país cadastrado.</td>
+                        <td colspan="7">Nenhum país cadastrado.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>
@@ -94,14 +163,21 @@ $cidades = $conn->query($sqlCidades);
                     <th>AÇÕES</th>
                 </tr>
             </thead>
+
             <tbody>
                 <?php if ($cidades->num_rows > 0): ?>
                     <?php while ($cidade = $cidades->fetch_assoc()): ?>
                         <tr>
                             <td><?= $cidade['id_cidade'] ?></td>
                             <td><?= htmlspecialchars($cidade['cidade']) ?></td>
-                            <td><?= htmlspecialchars($cidade['pais']) ?></td>
+
+                            <!-- IMPORTANTE: data-pais-id -->
+                            <td data-pais-id="<?= $cidade['id_pais'] ?>">
+                                <?= htmlspecialchars($cidade['pais']) ?>
+                            </td>
+
                             <td><?= number_format($cidade['populacao'], 0, ',', '.') ?></td>
+
                             <td>
                                 <i class="fas fa-edit edit" data-tipo="cidade"></i>
                                 <i class="fas fa-trash delete" data-tipo="cidade"></i>
@@ -110,67 +186,54 @@ $cidades = $conn->query($sqlCidades);
                     <?php endwhile; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="5" style="text-align:center; color:#666;">Nenhuma cidade cadastrada.</td>
+                        <td colspan="5">Nenhuma cidade cadastrada.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>
         </table>
     </div>
 
-    <!-- MODAL DE EDIÇÃO -->
+    <!-- ================= MODAL DE EDIÇÃO ================= -->
     <div class="modal-conteudo" id="modal">
         <div class="card-modal">
             <i class="fas fa-times close-btn" id="fechar"></i>
-            <h2 class="modal-titulo" id="titulo-modal">Editar País</h2>
+            <h2 class="modal-titulo" id="titulo-modal">Editar</h2>
 
             <!-- FORMULÁRIO DE PAÍS -->
             <form id="form-pais">
 
                 <label class="label-form">
-                <i class="fas fa-flag"></i>
-                <input type="text" name="nome" placeholder="Nome do País"
-                    pattern="[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]{2,}"
-                    onkeypress="return /[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]/i.test(event.key)" required>
+                    <i class="fas fa-flag"></i>
+                    <input type="text" name="nome" placeholder="Nome do País" required>
                 </label>
-
 
                 <label class="label-form">
                     <i class="fas fa-hashtag"></i>
-                    <input type="number" name="codigo" placeholder="Código do País" inputmode="numeric" pattern="\\d+" required onkeypress="return /[0-9]/.test(event.key)">
+                    <input type="number" name="codigo" placeholder="Código do País" required>
                 </label>
-
 
                 <label class="label-form">
                     <i class="fas fa-globe-americas"></i>
-                    <select name="continente" required
-                        style="border:0;background:transparent;outline:none;font-size:1rem;width:100%">
+                    <select name="continente" required>
                         <option value="" disabled selected>Selecione o Continente</option>
-                        <option value="africa">África</option>
-                        <option value="america">América</option>
-                        <option value="asia">Ásia</option>
-                        <option value="europa">Europa</option>
-                        <option value="oceania">Oceania</option>
-                        <option value="antartida">Antártida</option>
+                        <option value="África">África</option>
+                        <option value="América">América</option>
+                        <option value="Ásia">Ásia</option>
+                        <option value="Europa">Europa</option>
+                        <option value="Oceania">Oceania</option>
+                        <option value="Antártida">Antártida</option>
                     </select>
                 </label>
 
                 <label class="label-form">
                     <i class="fas fa-users"></i>
-                    <input type="number" name="populacao" placeholder="População" min="0" step="1" inputmode="numeric"
-                        required onkeypress="return /[0-9]/.test(event.key)">
+                    <input type="number" name="populacao" placeholder="População" required>
                 </label>
-
 
                 <label class="label-form">
                     <i class="fas fa-language"></i>
-                    <input type="text" name="idioma" placeholder="Idioma Principal"
-                        pattern="[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]{2,}"
-                        onkeypress="return /[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]/i.test(event.key)" required>
+                    <input type="text" name="idioma" placeholder="Idioma Principal" required>
                 </label>
-
-                <div class="signup-sub">Não sabe o código? <a
-                        href="https://www.dadosmundiais.com/codigos-de-pais.php">Consulte aqui.</a>
-                </div>
 
                 <button class="enviar-btn" type="submit">Salvar Alterações</button>
             </form>
@@ -180,14 +243,12 @@ $cidades = $conn->query($sqlCidades);
 
                 <label class="label-form">
                     <i class="fa-solid fa-building"></i>
-                    <input type="text" name="nome" placeholder="Nome da Cidade"
-                        pattern="[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]{2,}"
-                        onkeypress="return /[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]/i.test(event.key)" required>
+                    <input type="text" name="nome" placeholder="Nome da Cidade" required>
                 </label>
 
                 <label class="label-form">
                     <i class="fas fa-flag"></i>
-                    <select name="pais" required style="border:0;background:transparent;outline:none;font-size:1rem;width:100%">
+                    <select name="pais" required>
                         <option value="" disabled selected>Selecione o País</option>
                         <?php foreach ($paises as $pais): ?>
                             <option value="<?= $pais['id_pais'] ?>"><?= htmlspecialchars($pais['nome']) ?></option>
@@ -197,89 +258,27 @@ $cidades = $conn->query($sqlCidades);
 
                 <label class="label-form">
                     <i class="fas fa-users"></i>
-                    <input type="number" name="populacao" placeholder="População" min="0" step="1" inputmode="numeric"
-                        required onkeypress="return /[0-9]/.test(event.key)">
+                    <input type="number" name="populacao" placeholder="População" required>
                 </label>
 
                 <button class="enviar-btn" type="submit">Salvar Alterações</button>
             </form>
+
         </div>
     </div>
 
-    <!-- MODAL DE EXCLUSÃO -->
+    <!-- ============= MODAL EXCLUSÃO ============= -->
     <div class="modal-conteudo" id="modal-excluir">
         <div class="card-modal">
             <i class="fas fa-times close-btn" id="fechar-excluir"></i>
-            <h2 class="modal-titulo" id="titulo-excluir">Excluir Registro</h2>
-            <p class="confirm-text" id="texto-excluir">Tem certeza de que deseja excluir este registro?</p>
+
+            <h2 id="titulo-excluir" style="text-align:center;">Excluir Registro</h2>
+            <p id="texto-excluir" style="text-align:center;">Tem certeza?</p>
+
             <button class="enviar-btn" id="confirmar-excluir">Excluir</button>
         </div>
     </div>
-
-    <script>
-        /* --- EDITAR --- */
-        const modal = document.getElementById("modal");
-        const fechar = document.getElementById("fechar");
-        const titulo = document.getElementById("titulo-modal");
-        const formPais = document.getElementById("form-pais");
-        const formCidade = document.getElementById("form-cidade");
-        const botoesEditar = document.querySelectorAll(".edit");
-
-        botoesEditar.forEach((btn) => {
-            btn.addEventListener("click", () => {
-                modal.style.display = "flex";
-                const tipo = btn.getAttribute("data-tipo");
-
-                if (tipo === "pais") {
-                    titulo.textContent = "Editar País";
-                    formPais.style.display = "block";
-                    formCidade.style.display = "none";
-                } else {
-                    titulo.textContent = "Editar Cidade";
-                    formPais.style.display = "none";
-                    formCidade.style.display = "block";
-                }
-            });
-        });
-
-        fechar.addEventListener("click", () => (modal.style.display = "none"));
-        window.addEventListener("click", (e) => {
-            if (e.target === modal) modal.style.display = "none";
-        });
-
-        /* --- EXCLUIR --- */
-        const modalExcluir = document.getElementById("modal-excluir");
-        const fecharExcluir = document.getElementById("fechar-excluir");
-        const tituloExcluir = document.getElementById("titulo-excluir");
-        const textoExcluir = document.getElementById("texto-excluir");
-
-        const botoesExcluir = document.querySelectorAll(".delete");
-
-        botoesExcluir.forEach((btn) => {
-            btn.addEventListener("click", () => {
-                modalExcluir.style.display = "flex";
-                const tipo = btn.getAttribute("data-tipo");
-
-                if (tipo === "pais") {
-                    tituloExcluir.textContent = "Excluir País";
-                    textoExcluir.textContent = "Tem certeza de que deseja excluir este país?";
-                } else {
-                    tituloExcluir.textContent = "Excluir Cidade";
-                    textoExcluir.textContent = "Tem certeza de que deseja excluir esta cidade?";
-                }
-            });
-        });
-
-        fecharExcluir.addEventListener("click", () => (modalExcluir.style.display = "none"));
-        window.addEventListener("click", (e) => {
-            if (e.target === modalExcluir) modalExcluir.style.display = "none";
-        });
-
-        document.getElementById("confirmar-excluir").addEventListener("click", () => {
-            alert("Registro excluído com sucesso!");
-            modalExcluir.style.display = "none";
-        });
-    </script>
+    <script src="./js/script.js"></script>
 </body>
 
 </html>

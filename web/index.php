@@ -1,22 +1,26 @@
 <?php
 require_once 'conect.php';
 
-// Busca todos os países
-$sqlPaises = "select id_pais, nome, codigo_pais, continente, populacao from paises order by nome ASC";
+// Busca todos os países do banco
+$sqlPaises = "select id_pais, nome, codigo_pais, continente, populacao 
+              from paises 
+              order by nome ASC";
 $paises = $conn->query($sqlPaises);
 ?>
 
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Espaço Mundo - Home Page</title>
     <link rel="stylesheet" href="./css/style.css">
-    <!--FontAwesome-->
     <script src="https://kit.fontawesome.com/fbd385f3f7.js" crossorigin="anonymous"></script>
+</head>
+
 <body>
-    <!-- Header estilizado -->
+
     <header class="header" id="header">
         <div class="logo">
             <a href="#banner" class="logo-link">
@@ -40,7 +44,7 @@ $paises = $conn->query($sqlPaises);
                 <div class="info-banner">
                     <span class="banner-titulo">VENHA CONHECER OS PAÍSES DO SEU</span>
                     <h1 class="banner-subtitulo">PLANETA TERRA</h1>
-                    <p class="banner-desc">Conhecer países ao redor do mundo é uma experiência enriquecedora que amplia horizontes e transforma perspectivas.Cada destino traz histórias, culturas e tradições únicas que despertam curiosidade e admiração.</p>
+                    <p class="banner-desc">Conhecer países ao redor do mundo é uma experiência enriquecedora...</p>
                     <div class="banner-saiba-mais">
                         <button class="banner-btn">Saiba Mais</button>
                     </div>
@@ -58,7 +62,7 @@ $paises = $conn->query($sqlPaises);
                 </div>
                 <div class="sobre-texto">
                     <h2 class="sobre-titulo">Sobre Nós</h2>
-                    <p class="sobre-desc">Acreditamos não apenas em explorar mais, mas em explorar melhor. E explorar melhor significa alinhar o sucesso da sua jornada com experiências únicas e inesquecíveis em cada país. Uma experiência onde todos ganham!</p>
+                    <p class="sobre-desc">Acreditamos não apenas em explorar mais...</p>
                 </div>
             </div>
         </section>
@@ -67,41 +71,11 @@ $paises = $conn->query($sqlPaises);
             <div class="paises-conteudo">
                 <h2 class="paises-titulo"><i class="fa-solid fa-globe"></i> Países</h2>
 
-                <div class="cards-paises" aria-hidden="false">
-                    <?php
-                    if ($paises->num_rows > 0) {
-                        while ($pais = $paises->fetch_assoc()) {
-                            // Preenche zeros à esquerda para garantir 3 dígitos
-                            $codigo_pais = str_pad($pais['codigo_pais'], 3, "0", STR_PAD_LEFT);
-                            // Usando a API REST Countries para pegar a bandeira
-                            $api_url = "https://restcountries.com/v3.1/alpha/{$codigo_pais}";
-                            $json = @file_get_contents($api_url);
-                            $bandeira= "assets/img_erro.jpg"; // fallback se der erro
-                            if ($json) {
-                                $data = json_decode($json, true);
-                                if (isset($data[0]['flags']['svg'])) {
-                                    $bandeira= $data[0]['flags']['svg'];
-                                }
-                            }
-                    ?>
-                            <div class="card">
-                                <img src="<?= $bandeira?>" alt="Bandeira de <?= htmlspecialchars($pais['nome']) ?>" class="card-img">
-                                <div class="card-body">
-                                    <h3 class="card-titulo"><?= htmlspecialchars($pais['nome']) ?></h3>
-                                    <p class="card-texto">
-                                        Continente: <?= htmlspecialchars($pais['continente']) ?><br>
-                                        População: <?= number_format($pais['populacao'], 0, ',', '.') ?><br>
-                                    </p>
-                                    <a href="pais.php?id=<?= $pais['id_pais'] ?>" class="card-btn">Saiba mais</a>
-                                </div>
-                            </div>
-                    <?php
-                        }
-                    } else {
-                        echo "<p style='color:#fff; text-align:center;'>Nenhum país cadastrado.</p>";
-                    }
-                    ?>
+                <!-- Contêiner que será preenchido por JavaScript -->
+                <div class="cards-paises" id="lista-paises">
+                    <p style="color:white; text-align:center;">Carregando países...</p>
                 </div>
+
             </div>
         </section>
 
@@ -120,6 +94,7 @@ $paises = $conn->query($sqlPaises);
             </div>
         </section>
     </main>
+
     <footer>
         <div class="footer-conteudo">
             <a href="#banner" class="footer-logo">
@@ -127,20 +102,67 @@ $paises = $conn->query($sqlPaises);
                 Espaço Mundo
             </a>
             <div class="footer-contatos">
-                <a href="tel:+5511999999999" class="item-footer-contato">
-                    <i class="fas fa-phone"></i>
-                    (11) 99999-9999
-                </a>
-                <a href="mailto:contato@espacomundo.com.br" class="item-footer-contato">
-                    <i class="fas fa-envelope"></i>
-                    contato@espacomundo.com.br
-                </a>
-                <a href="https://www.instagram.com/" target="_blank" class="item-footer-contato">
-                    <i class="fab fa-instagram"></i>
-                    @espacomundo
-                </a>
+                <a href="tel:+5511999999999" class="item-footer-contato"><i class="fas fa-phone"></i>(11) 99999-9999</a>
+                <a href="mailto:contato@espacomundo.com.br" class="item-footer-contato"><i class="fas fa-envelope"></i>contato@espacomundo.com.br</a>
+                <a href="https://www.instagram.com/" target="_blank" class="item-footer-contato"><i class="fab fa-instagram"></i>@espacomundo</a>
             </div>
         </div>
     </footer>
+
+    <!-- JAVASCRIPT-->
+    <script>
+        // Pega os dados PHP em JSON direto dentro do mesmo arquivo
+        const paisesPHP = <?php
+                            // transforma o resultado do SQL em JSON
+                            $lista = [];
+                            while ($p = $paises->fetch_assoc()) {
+                                $lista[] = $p;
+                            }
+                            echo json_encode($lista);
+                            ?>;
+
+        // Função principal
+        async function carregarPaises() {
+            const container = document.getElementById("lista-paises");
+            container.innerHTML = "<p style='color:white'>Carregando países...</p>";
+
+            const cards = [];
+
+            for (const pais of paisesPHP) {
+
+                const codigo = pais.codigo_pais.toString().padStart(3, "0");
+                let bandeira = "assets/img_erro.jpg";
+
+                try {
+                    const resp = await fetch(`https://restcountries.com/v3.1/alpha/${codigo}`);
+                    const data = await resp.json();
+
+                    if (data[0]?.flags?.svg) {
+                        bandeira = data[0].flags.svg;
+                    }
+                } catch (e) {
+                    bandeira = "assets/img_erro.jpg";
+                }
+
+                cards.push(`
+            <div class="card">
+                <img src="${bandeira}" alt="Bandeira de ${pais.nome}" class="card-img">
+
+                <div class="card-body">
+                    <h3 class="card-titulo">${pais.nome}</h3>
+                    <p class="card-texto">
+                        Continente: ${pais.continente}<br>
+                        População: ${Number(pais.populacao).toLocaleString("pt-BR")}
+                    </p>
+                    <a href="pais.php?id=${pais.id_pais}" class="card-btn">Saiba mais</a>
+                </div>
+            </div>
+        `);
+            }
+            container.innerHTML = cards.join("");
+        }
+        carregarPaises();
+    </script>
 </body>
+
 </html>

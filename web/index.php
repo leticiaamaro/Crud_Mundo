@@ -5,9 +5,8 @@ require_once 'conect.php';
 $sqlPaises = "select id_pais, nome, codigo_pais, continente, populacao 
               from paises 
               order by nome ASC";
-$paises = $conn->query($sqlPaises);
+$paises = $conn->query($sqlPaises); // faz conexao recebe a query e envia para o banco
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -71,7 +70,7 @@ $paises = $conn->query($sqlPaises);
             <div class="paises-conteudo">
                 <h2 class="paises-titulo"><i class="fa-solid fa-globe"></i> Países</h2>
 
-                <!-- Contêiner que será preenchido por JavaScript -->
+                <!-- Requisição de paises feita com JavaScript -> carregamento para nao sobrecarregar -->
                 <div class="cards-paises" id="lista-paises">
                     <p style="color:white; text-align:center;">Carregando países...</p>
                 </div>
@@ -111,57 +110,57 @@ $paises = $conn->query($sqlPaises);
 
     <!-- JAVASCRIPT-->
     <script>
-        // Pega os dados PHP em JSON direto dentro do mesmo arquivo
         const paisesPHP = <?php
-                            // transforma o resultado do SQL em JSON
                             $lista = [];
-                            while ($p = $paises->fetch_assoc()) {
-                                $lista[] = $p;
+                            while ($p = $paises->fetch_assoc()) { //retorna cada pais como array associativo
+                                $lista[] = $p; // adiciona o pais na lista
                             }
-                            echo json_encode($lista);
+                            echo json_encode($lista); // transforma a lista em JSON para conseguir usar no JS
                             ?>;
 
         // Função principal
-        async function carregarPaises() {
-            const container = document.getElementById("lista-paises");
-            container.innerHTML = "<p style='color:white'>Carregando países...</p>";
+        async function carregarPaises() { // função assincrona para esperar o fetch
+            // pega o container onde os cards serão colocados pelo id
+            const container = document.getElementById("lista-paises"); 
+            container.innerHTML = "<p style='color:white'>Carregando países...</p>"; // mensagem de carregamento
+            const cards = []; // array para guardar os cards
 
-            const cards = [];
+            for (const pais of paisesPHP) { // para cada pais no array de paises do PHP
+                // formata o codigo do pais para 3 digitos com zeros a esquerda
+                const codigo = pais.codigo_pais.toString().padStart(3, "0"); 
+                let bandeira = "assets/img_erro.jpg"; // Inicia bandeira com uma imagem de erro padrão
 
-            for (const pais of paisesPHP) {
-
-                const codigo = pais.codigo_pais.toString().padStart(3, "0");
-                let bandeira = "assets/img_erro.jpg";
-
-                try {
+                try { //o try garante que se der erro no fetch, o código não para de funcionar
+                    // Faz a requisição para a API de países
                     const resp = await fetch(`https://restcountries.com/v3.1/alpha/${codigo}`);
+                    // Converte a resposta para JSON
                     const data = await resp.json();
 
-                    if (data[0]?.flags?.svg) {
-                        bandeira = data[0].flags.svg;
+                    if (data[0]?.flags?.svg) { // Verifica se a bandeira existe em SVG
+                        bandeira = data[0].flags.svg; //pega a bandeira SVG que fica no indice 0 do array da API
                     }
-                } catch (e) {
+                } catch (erro) { // executado se um erro ocorrer dentro do try
+                    // o catch garante que a imagem de erro seja usada no caso de erro
                     bandeira = "assets/img_erro.jpg";
                 }
 
-                cards.push(`
-            <div class="card">
-                <img src="${bandeira}" alt="Bandeira de ${pais.nome}" class="card-img">
+                // a lista 'cards' vai puxar os templates de cada card de país
+                cards.push(` <div class="card">
+                                <img src="${bandeira}" alt="Bandeira de ${pais.nome}" class="card-img">
 
-                <div class="card-body">
-                    <h3 class="card-titulo">${pais.nome}</h3>
-                    <p class="card-texto">
-                        Continente: ${pais.continente}<br>
-                        População: ${Number(pais.populacao).toLocaleString("pt-BR")}
-                    </p>
-                    <a href="pais.php?id=${pais.id_pais}" class="card-btn">Saiba mais</a>
-                </div>
-            </div>
-        `);
+                                <div class="card-body">
+                                    <h3 class="card-titulo">${pais.nome}</h3>
+                                    <p class="card-texto">
+                                        Continente: ${pais.continente}<br>
+                                        População: ${Number(pais.populacao).toLocaleString("pt-BR")}
+                                    </p>
+                                    <a href="pais.php?id=${pais.id_pais}" class="card-btn">Saiba mais</a>
+                                </div>
+                            </div>`);
             }
-            container.innerHTML = cards.join("");
+            container.innerHTML = cards.join("");// junta todos os cards em uma string só e coloca no container
         }
-        carregarPaises();
+        carregarPaises(); // chama a função principal para carregar os países
     </script>
 </body>
 

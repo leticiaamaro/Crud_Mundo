@@ -2,7 +2,7 @@
 require_once 'conect.php';
 
 // UPDATE PAISES E CIDADES
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+if ($_SERVER["REQUEST_METHOD"] === "POST") { // verifica se o metodo da requisicao é POST
 
     // ==== ATUALIZAR PAÍS ====
     if ($_POST["tipo"] === "pais") {
@@ -18,12 +18,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 set nome=?, codigo_pais=?, continente=?, populacao=?, idioma=?
                 where id_pais=?";
 
-        $stmt = $conn->prepare($sql);
+        $stmt = $conn->prepare($sql); // prepara a query
+         //'sssisi' significa: string, string, string, integer, string, integer
         $stmt->bind_param("sssisi", $nome, $codigo, $continente, $populacao, $idioma, $id);
-        $stmt->execute();
-
-        echo "ok";
-        exit;
+        $stmt->execute(); // executa a query
+        echo "ok"; // retorna ok para o JS
+        exit; // encerra a execucao do script
     }
 
     // ==== ATUALIZAR CIDADE ====
@@ -38,20 +38,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 set nome=?, id_pais=?, populacao=?
                 where id_cidade=?";
 
-        $stmt = $conn->prepare($sql);
+        $stmt = $conn->prepare($sql); // prepara a query
+        // 'sisi' significa: string, integer, string, integer
         $stmt->bind_param("sisi", $nome, $pais, $populacao, $id);
-        $stmt->execute();
-
-        echo "ok";
-        exit;
+        $stmt->execute(); // executa a query
+        echo "ok"; // retorna ok para o JS
+        exit; // encerra a execucao do script
     }
 }
 
 // ===== EXCLUIR =====
-if ($_SERVER["REQUEST_METHOD"] === "POST" && $_POST["tipo"] === "excluir") {
-
+if ($_SERVER["REQUEST_METHOD"] === "POST" && $_POST["tipo"] === "excluir") { // verifica se o metodo da requisicao é POST e se o tipo é excluir
     $id = $_POST["id"];
-    $categoria = $_POST["categoria"]; // pais ou cidade
+    $categoria = $_POST["categoria"]; // verufuca se a categoria é pais ou cidade
 
     if ($categoria === "pais") {
         $sql = "delete from paises where id_pais = ?";
@@ -59,28 +58,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $_POST["tipo"] === "excluir") {
         $sql = "delete from cidades where id_cidade = ?";
     }
 
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-
-    echo "ok";
-    exit;
+    $stmt = $conn->prepare($sql); // prepara a query
+    $stmt->bind_param("i", $id); // 'i' == integer
+    $stmt->execute(); // executa a query
+    echo "ok"; // retorna ok para o JS
+    exit;// encerra a execucao do script
 }
 
-// ====== BUSCAR PAÍSES ======
+// ====== BUSCA PAÍSES ======
 $sqlPaises = "select id_pais, nome, codigo_pais, continente, populacao, idioma from paises";
-$paises = $conn->query($sqlPaises);
+$paises = $conn->query($sqlPaises); // faz conexao recebe a query e envia para o banco
 
-// ====== BUSCAR CIDADES ======
+// ====== BUSCA CIDADES ======
 $sqlCidades = "select 
-                  cidades.id_cidade, 
-                  cidades.nome as cidade, 
-                  cidades.populacao,
-                  cidades.id_pais,
-                  paises.nome as pais 
+                cidades.id_cidade, 
+                cidades.nome as cidade, 
+                cidades.populacao,
+                cidades.id_pais,
+                paises.nome as pais 
                from cidades  
                inner join paises on cidades.id_pais = paises.id_pais";
-$cidades = $conn->query($sqlCidades);
+$cidades = $conn->query($sqlCidades); // faz conexao recebe a query e envia para o banco
 ?>
 
 <!DOCTYPE html>
